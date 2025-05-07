@@ -53,7 +53,7 @@ def parse_fuel_tax_input(text: str) -> dict:
     # --- USE CASE ---
     if re.search(r"(engine|machine|truck|vehicle|combustion)", text):
         result["use_case"] = "engine_use"
-    elif re.search(r"resale|resell", text):
+    elif re.search(r"(resale|resell)", text):
         result["use_case"] = "resale"
     elif re.search(r"(export|exported|outside bc|to alberta|to the us)", text):
         result["use_case"] = "export"
@@ -96,6 +96,10 @@ def parse_fuel_tax_input(text: str) -> dict:
     elif "title transfers in bc" in text or "sold in bc" in text or "selling in bc" in text:
         result["title_transfer_location"] = "BC"
 
+    # --- PARSER WARNING for vague phrases ---
+    if "operations" in text and not result.get("use_case"):
+        result["parser_warning"] = "⚠️ The phrase 'operations' is too vague. Please specify if this is engine use, heating, resale, or export."
+
     # --- DEFAULT FALLBACKS ---
     if not result["destination"]:
         result["destination"] = "BC"
@@ -108,7 +112,7 @@ def parse_fuel_tax_input(text: str) -> dict:
 # --- Example usage ---
 if __name__ == "__main__":
     example = """
-    I am selling propane, in BC, to a customer in BC, who is exporting it to Alberta using a common carrier.
+    I am selling propane in BC to a customer in BC who is using it in a machine.
     """
     parsed = parse_fuel_tax_input(example)
     for key, value in parsed.items():
