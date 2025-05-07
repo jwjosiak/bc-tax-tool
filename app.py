@@ -5,20 +5,28 @@ from parser import parse_fuel_tax_input
 from bcmftrule import check_bc_fuel_tax_applicability
 
 st.set_page_config(page_title="BC Motor Fuel Tax Tool", layout="centered")
-st.title("🚛 BC Motor Fuel Tax Determination Tool")
+st.title("🌲 BC Motor Fuel Tax Determination Tool")
 
 with st.expander("ℹ️ Click here for input guidance"):
     st.markdown("""
-    This tool assumes you will **not** charge BC Motor Fuel Tax on a transaction.
+    This tool assumes you will **not** charge BC Motor Fuel Tax (MFT) on a transaction.
 
     It will tell you what conditions or documents are required to justify that position.
 
-    **✅ Examples of language that works:**
-    - “We sold propane in BC to a customer who is exporting it to Alberta.”
-    - “Sold diesel to a registered reseller who provided a resale certificate.”
-    - “Propane sold to a farmer for heating in Zone II with certificate.”
+    ---
+    ### ✅ Use clear phrases like:
+    - “We sold **propane** in BC to a customer who is **exporting** it to Alberta.”
+    - “Sold **diesel** to a **registered reseller** who provided a **resale certificate**.”
+    - “**Propane** sold to a **farmer** for **heating** in Zone II with a certificate.”
+    - “Used in a **machine**, **vehicle**, or for **combustion**” → *engine use*
+    - “Used in a **boiler**, for **steam generation**, or as **feedstock**” → *non-engine use*
 
-    ❌ Avoid vague phrases like “operations” or “business use.” Be clear about the purpose: engine use, heating, resale, export, etc.
+    ---
+    ### ❌ Avoid vague language:
+    - “Used in operations”
+    - “General use” or “business use”
+
+    ✅ Be as specific as possible. The tool uses keywords to classify the tax treatment.
     """)
 
 user_input = st.text_area(
@@ -31,11 +39,11 @@ if user_input.strip():
     # Parse input
     parsed = parse_fuel_tax_input(user_input)
 
-    # Show parser warning, if any
+    # Show parser warning if applicable
     if "parser_warning" in parsed:
         st.warning(parsed["parser_warning"])
 
-    # Clean up for rules engine
+    # Clean dictionary for rules engine
     parsed_cleaned = {k: v for k, v in parsed.items() if k != "parser_warning"}
 
     # Friendly summary
@@ -45,11 +53,11 @@ if user_input.strip():
     st.markdown(f"- Certificate: `{parsed_cleaned.get('certificate', 'None')}`")
     st.markdown(f"- Destination: `{parsed_cleaned.get('destination', 'N/A')}`")
 
-    # Optional full dump for debugging
+    # Optional parsed dump
     with st.expander("🧪 Show full parsed input (for developers or audit purposes)"):
         st.write(parsed_cleaned)
 
-    # Check tax applicability (reversed logic — seller assumes no tax)
+    # Check tax treatment
     is_supported, message = check_bc_fuel_tax_applicability(**parsed_cleaned)
 
     st.subheader("⚖️ MFT Exemption Guidance")
