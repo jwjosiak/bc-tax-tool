@@ -5,7 +5,7 @@ from parser import parse_fuel_tax_input
 from bcmftrule import check_bc_fuel_tax_applicability
 
 st.set_page_config(page_title="BC Motor Fuel Tax Tool", layout="centered")
-st.title("🚛 BC Motor Fuel Tax Determination Tool")
+st.title("⛽ BC Motor Fuel Tax Determination Tool")
 
 with st.expander("ℹ️ Click here for input guidance"):
     st.markdown("""
